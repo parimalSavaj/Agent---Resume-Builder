@@ -10,7 +10,7 @@ Each feature is documented in its own file inside this folder. Build them in ord
 
 ### Phase 1 — Core (the full working loop)
 1. `01-user-account.md` — username/password login so each person's data stays private
-2. `02-master-vault.md` — the data source: every job, project, skill, bullet point ever written
+2. `02-master-vault.md` — the data source: every job, project, skill, bullet point ever written, editable by tab with an optional AI "Analyze" pass to fix typos/grammar
 3. `03-job-description-intake.md` — paste a JD, extract what it's really asking for
 4. `04-matching-engine.md` — select and rephrase real vault content to match the JD
 5. `05-resume-assembly.md` — lay matched content into a real resume structure
