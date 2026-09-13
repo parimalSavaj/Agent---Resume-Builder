@@ -1,4 +1,4 @@
-# Feature 12: Settings & Configuration
+# Enhancement: Settings & Configuration
 
 ## Why
 The person needs control over which AI service and model powers generation, along with the credential that connects to it, kept safe and easy to change.

@@ -1,4 +1,4 @@
-# Feature 7: Missing Skills / Gap Analyzer
+# Enhancement: Missing Skills / Gap Analyzer
 
 ## Why
 Sometimes a job description asks for something genuinely absent from the vault. The honest move is to say so clearly, before a resume gets generated, rather than quietly papering over it.
