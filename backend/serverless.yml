@@ -1,0 +1,52 @@
+service: resume-builder-backend
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 29 # API Gateway hard limit is 30s — stay just under it
+
+  # Environment variables injected into the Lambda function.
+  # Secrets should come from AWS SSM / Secrets Manager in production;
+  # for now they are read from the deploy-time environment or a .env file
+  # via the serverless-dotenv-plugin (not committed to source control).
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_ACCESS_SECRET: ${env:JWT_ACCESS_SECRET}
+    JWT_REFRESH_SECRET: ${env:JWT_REFRESH_SECRET}
+    JWT_ACCESS_EXPIRES_IN: ${env:JWT_ACCESS_EXPIRES_IN, '15m'}
+    JWT_REFRESH_EXPIRES_IN: ${env:JWT_REFRESH_EXPIRES_IN, '7d'}
+    CLIENT_ORIGIN: ${env:CLIENT_ORIGIN, 'http://localhost:5173'}
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    description: Resume Builder API — Express app wrapped with serverless-http
+    events:
+      # Catch-all: forwards every HTTP method + path to the Express router.
+      # Express handles all routing internally, so a single proxy route is enough.
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      # Root path needs a separate rule because /{proxy+} does not match '/'.
+      - httpApi:
+          path: /
+          method: ANY
+
+package:
+  # Only ship the compiled output and production node_modules.
+  # Source files, tests, and dev tooling are excluded from the deployed zip.
+  patterns:
+    - '!src/**'
+    - '!*.ts'
+    - '!tsconfig.json'
+    - '!serverless.yml'
+    - '!.env*'
+    - '!migrations/**'
+    - 'dist/**'
+    - 'node_modules/**'
