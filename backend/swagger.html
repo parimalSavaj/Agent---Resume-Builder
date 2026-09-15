@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resume Builder API — Swagger UI</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui.css" />
+    <style>
+      body { margin: 0; }
+      .swagger-ui .topbar { background-color: #1a1a2e; }
+      .swagger-ui .topbar .topbar-wrapper .link span { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui-standalone-preset.js"></script>
+    <script>
+      const spec = {
+        openapi: "3.1.0",
+        info: {
+          title: "Resume Builder — Auth API",
+          version: "1.0.0",
+          description:
+            "Authentication endpoints for the Reverse ATS / Dynamic Resume Builder platform.\n\n" +
+            "**Flow:**\n" +
+            "1. `POST /signup` or `POST /login` → get `accessToken` + `refreshToken`\n" +
+            "2. Pass `accessToken` as `Authorization: Bearer <token>` on protected routes\n" +
+            "3. When the access token expires (15 min), call `POST /refresh` with the refresh token\n" +
+            "4. Call `POST /logout` to revoke the session\n\n" +
+            "**Rate limit:** 20 requests / 15 min window on `/signup`, `/login`, `/refresh`."
+        },
+        servers: [
+          {
+            url: "http://localhost:4000/api",
+            description: "Local development server"
+          },
+          {
+            url: "https://{apiId}.execute-api.{region}.amazonaws.com/{stage}/api",
+            description: "AWS API Gateway (production)",
+            variables: {
+              apiId:  { default: "your-api-id" },
+              region: { default: "us-east-1" },
+              stage:  { default: "dev" }
+            }
+          }
+        ],
+        components: {
+          securitySchemes: {
+            BearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+              description: "Access token returned by `/login`, `/signup`, or `/refresh`. Expires in 15 minutes."
+            }
+          },
+          schemas: {
+            // ── Shared ──────────────────────────────────────────────
+            UserObject: {
+              type: "object",
+              required: ["id", "username"],
+              properties: {
+                id:       { type: "string", format: "uuid", example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+                username: { type: "string", example: "testuser" }
+              }
+            },
+            AuthTokens: {
+              type: "object",
+              required: ["user", "accessToken", "refreshToken"],
+              properties: {
+                user:         { $ref: "#/components/schemas/UserObject" },
+                accessToken:  {
+                  type: "string",
+                  description: "Short-lived JWT (15 min). Send as `Authorization: Bearer <token>`.",
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwiaWF0IjoxNjAwMDAwMDAwLCJleHAiOjE2MDAwMDA5MDB9.signature"
+                },
+                refreshToken: {
+                  type: "string",
+                  description: "Long-lived JWT (7 days). Store securely; hash stored in DB.",
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhMWIyYzNkNC1lNWY2LTc4OTAtYWJjZC1lZjEyMzQ1Njc4OTAiLCJqdGkiOiJ1dWlkLWp0aSIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoxNjAwNjA0ODAwfQ.signature"
+                }
+              }
+            },
+            ApiResponse: {
+              type: "object",
+              required: ["statusCode", "data"],
+              properties: {
+                statusCode: { type: "integer", example: 200 },
+                data:       { description: "Endpoint-specific payload" }
+              }
+            },
+            ApiError: {
+              type: "object",
+              required: ["statusCode", "error"],
+              properties: {
+                statusCode: { type: "integer", example: 400 },
+                error:      { type: "string",  example: "Validation failed" }
+              }
+            },
+            // ── Request bodies ───────────────────────────────────────
+            SignupRequest: {
+              type: "object",
+              required: ["username", "password"],
+              properties: {
+                username: {
+                  type: "string",
+                  minLength: 3,
+                  maxLength: 64,
+                  pattern: "^[a-zA-Z0-9_.\\-]+$",
+                  description: "Letters, numbers, underscores, dots, and hyphens only.",
+                  example: "testuser"
+                },
+                password: {
+                  type: "string",
+                  minLength: 8,
+                  maxLength: 128,
+                  format: "password",
+                  example: "password123"
+                }
+              }
+            },
+            LoginRequest: {
+              type: "object",
+              required: ["username", "password"],
+              properties: {
+                username: { type: "string", example: "testuser" },
+                password: { type: "string", format: "password", example: "password123" }
+              }
+            },
+            RefreshRequest: {
+              type: "object",
+              required: ["refreshToken"],
+              properties: {
+                refreshToken: {
+                  type: "string",
+                  description: "The refresh token issued by `/login`, `/signup`, or a previous `/refresh` call.",
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            },
+            LogoutRequest: {
+              type: "object",
+              properties: {
+                refreshToken: {
+                  type: "string",
+                  description: "Optional. If provided, only that specific refresh token is revoked. If omitted, all tokens for the user are revoked.",
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            },
+            // ── Response bodies ──────────────────────────────────────
+            SignupResponse: {
+              allOf: [
+                { $ref: "#/components/schemas/ApiResponse" },
+                {
+                  type: "object",
+                  properties: {
+                    statusCode: { example: 201 },
+                    data: { $ref: "#/components/schemas/AuthTokens" }
+                  }
+                }
+              ]
+            },
+            LoginResponse: {
+              allOf: [
+                { $ref: "#/components/schemas/ApiResponse" },
+                {
+                  type: "object",
+                  properties: {
+                    statusCode: { example: 200 },
+                    data: { $ref: "#/components/schemas/AuthTokens" }
+                  }
+                }
+              ]
+            },
+            RefreshResponse: {
+              allOf: [
+                { $ref: "#/components/schemas/ApiResponse" },
+                {
+                  type: "object",
+                  properties: {
+                    statusCode: { example: 200 },
+                    data: { $ref: "#/components/schemas/AuthTokens" }
+                  }
+                }
+              ]
+            },
+            MeResponse: {
+              allOf: [
+                { $ref: "#/components/schemas/ApiResponse" },
+                {
+                  type: "object",
+                  properties: {
+                    statusCode: { example: 200 },
+                    data: { $ref: "#/components/schemas/UserObject" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+
+        tags: [
+          {
+            name: "Auth",
+            description: "User authentication — signup, login, token refresh, logout, and current user."
+          }
+        ],
+
+        paths: {
+          // ─────────────────────────────────────────────────────────
+          // POST /api/auth/signup
+          // ─────────────────────────────────────────────────────────
+          "/auth/signup": {
+            post: {
+              tags: ["Auth"],
+              summary: "Create a new account",
+              description:
+                "Registers a new user with a unique username and password.\n\n" +
+                "Returns a fresh access + refresh token pair on success.\n\n" +
+                "**Validation rules:**\n" +
+                "- `username`: 3–64 chars, `[a-zA-Z0-9_.-]` only\n" +
+                "- `password`: 8–128 chars\n\n" +
+                "**Rate limited:** 20 req / 15 min.",
+              operationId: "signup",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/SignupRequest" },
+                    examples: {
+                      default: {
+                        summary: "New user",
+                        value: { username: "testuser", password: "password123" }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "201": {
+                  description: "Account created — tokens issued.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/SignupResponse" },
+                      example: {
+                        statusCode: 201,
+                        data: {
+                          user: { id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", username: "testuser" },
+                          accessToken:  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access.signature",
+                          refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.signature"
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  description: "Validation failed (missing / invalid fields).",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 400, error: "Username must be at least 3 characters" }
+                    }
+                  }
+                },
+                "409": {
+                  description: "Username already taken.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 409, error: "Username already taken" }
+                    }
+                  }
+                },
+                "429": {
+                  description: "Rate limit exceeded.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 429, error: "Too Many Requests" }
+                    }
+                  }
+                },
+                "500": {
+                  description: "Internal server error.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 500, error: "Internal server error" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          // ─────────────────────────────────────────────────────────
+          // POST /api/auth/login
+          // ─────────────────────────────────────────────────────────
+          "/auth/login": {
+            post: {
+              tags: ["Auth"],
+              summary: "Log in",
+              description:
+                "Authenticates an existing user and returns a fresh access + refresh token pair.\n\n" +
+                "**Rate limited:** 20 req / 15 min.",
+              operationId: "login",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/LoginRequest" },
+                    examples: {
+                      testCredentials: {
+                        summary: "Test credentials",
+                        value: { username: "testuser", password: "password123" }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "200": {
+                  description: "Login successful — tokens issued.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/LoginResponse" },
+                      example: {
+                        statusCode: 200,
+                        data: {
+                          user: { id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", username: "testuser" },
+                          accessToken:  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access.signature",
+                          refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.signature"
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  description: "Validation failed (missing fields).",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 400, error: "Username is required" }
+                    }
+                  }
+                },
+                "401": {
+                  description: "Invalid username or password.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 401, error: "Invalid credentials" }
+                    }
+                  }
+                },
+                "429": {
+                  description: "Rate limit exceeded.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 429, error: "Too Many Requests" }
+                    }
+                  }
+                },
+                "500": {
+                  description: "Internal server error.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 500, error: "Internal server error" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          // ─────────────────────────────────────────────────────────
+          // POST /api/auth/refresh
+          // ─────────────────────────────────────────────────────────
+          "/auth/refresh": {
+            post: {
+              tags: ["Auth"],
+              summary: "Refresh access token",
+              description:
+                "Exchanges a valid refresh token for a new access + refresh token pair (token rotation).\n\n" +
+                "The old refresh token is **revoked** after a successful call — you must use the new one going forward.\n\n" +
+                "The refresh token hash is verified against the database; a missing or revoked token returns `401`.\n\n" +
+                "**Rate limited:** 20 req / 15 min.",
+              operationId: "refresh",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/RefreshRequest" },
+                    examples: {
+                      default: {
+                        summary: "With refresh token",
+                        value: { refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.signature" }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "200": {
+                  description: "Token rotated — new pair issued.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/RefreshResponse" },
+                      example: {
+                        statusCode: 200,
+                        data: {
+                          user: { id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", username: "testuser" },
+                          accessToken:  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_access.signature",
+                          refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new_refresh.signature"
+                        }
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  description: "Refresh token missing from body.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 400, error: "Refresh token is required" }
+                    }
+                  }
+                },
+                "401": {
+                  description: "Refresh token is invalid, expired, or already revoked.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 401, error: "Invalid or expired refresh token" }
+                    }
+                  }
+                },
+                "429": {
+                  description: "Rate limit exceeded.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 429, error: "Too Many Requests" }
+                    }
+                  }
+                },
+                "500": {
+                  description: "Internal server error.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 500, error: "Internal server error" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          // ─────────────────────────────────────────────────────────
+          // POST /api/auth/logout
+          // ─────────────────────────────────────────────────────────
+          "/auth/logout": {
+            post: {
+              tags: ["Auth"],
+              summary: "Log out",
+              description:
+                "Revokes the current session.\n\n" +
+                "- If `refreshToken` is included in the body, only **that token** is revoked.\n" +
+                "- If `refreshToken` is omitted, **all** refresh tokens for the user are revoked (full sign-out).\n\n" +
+                "Requires a valid `Authorization: Bearer <accessToken>` header.",
+              operationId: "logout",
+              security: [{ BearerAuth: [] }],
+              requestBody: {
+                required: false,
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/LogoutRequest" },
+                    examples: {
+                      singleDevice: {
+                        summary: "Revoke this device only",
+                        value: { refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.signature" }
+                      },
+                      allDevices: {
+                        summary: "Revoke all sessions (no body)",
+                        value: {}
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "204": {
+                  description: "Logged out — no content returned."
+                },
+                "401": {
+                  description: "Missing or invalid access token.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 401, error: "Unauthorized" }
+                    }
+                  }
+                },
+                "500": {
+                  description: "Internal server error.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 500, error: "Internal server error" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          // ─────────────────────────────────────────────────────────
+          // GET /api/auth/me
+          // ─────────────────────────────────────────────────────────
+          "/auth/me": {
+            get: {
+              tags: ["Auth"],
+              summary: "Get current user",
+              description:
+                "Returns the authenticated user's `id` and `username` decoded from the access token.\n\n" +
+                "No database call is made — data is read purely from the JWT payload.\n\n" +
+                "Requires a valid `Authorization: Bearer <accessToken>` header.",
+              operationId: "me",
+              security: [{ BearerAuth: [] }],
+              responses: {
+                "200": {
+                  description: "Current user info.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/MeResponse" },
+                      example: {
+                        statusCode: 200,
+                        data: {
+                          id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                          username: "testuser"
+                        }
+                      }
+                    }
+                  }
+                },
+                "401": {
+                  description: "Missing or invalid access token.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 401, error: "Unauthorized" }
+                    }
+                  }
+                },
+                "500": {
+                  description: "Internal server error.",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/ApiError" },
+                      example: { statusCode: 500, error: "Internal server error" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
+      window.onload = () => {
+        SwaggerUIBundle({
+          spec,
+          dom_id: "#swagger-ui",
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+          ],
+          layout: "StandaloneLayout",
+          // ── UX ──────────────────────────────────────────────────
+          deepLinking: true,           // bookmarkable operation anchors
+          docExpansion: "list",        // show all ops collapsed but listed
+          defaultModelsExpandDepth: 2, // expand schema models 2 levels
+          defaultModelExpandDepth: 2,
+          displayRequestDuration: true,// show response time on Try it out
+          filter: true,                // search/filter box across operations
+          tryItOutEnabled: true,       // "Try it out" open by default
+          // ── Auth UX (Swagger UI 5.x best practice) ──────────────
+          persistAuthorization: true,  // keep Bearer token across page reloads
+          // ── Security hardening (5.32.x) ─────────────────────────
+          queryConfigEnabled: false,   // block token injection via URL params
+          withCredentials: false,      // no cookies sent cross-origin
+        });
+      };
+    </script>
+  </body>
+</html>
