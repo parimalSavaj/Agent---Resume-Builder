@@ -1,6 +1,14 @@
-import { Pool, PoolClient, QueryResultRow } from 'pg';
+import { Pool, PoolClient, QueryResultRow, types } from 'pg';
 import { IDatabaseService } from './database.service.interface';
 import { config } from '../../config';
+
+// Postgres DATE columns have no time-of-day or timezone component, but node-postgres's
+// default parser (OID 1082) converts them into a JS Date at local midnight. Calling
+// .toISOString() on that Date later shifts it to UTC, which can roll the date backward
+// or forward by a day depending on the server's timezone offset. Returning the raw
+// "YYYY-MM-DD" string instead avoids that conversion entirely - callers that need a
+// Date can parse it explicitly, but most just pass the string straight through.
+types.setTypeParser(1082, (value: string) => value);
 
 export class DatabaseService implements IDatabaseService {
   private static instance: DatabaseService;

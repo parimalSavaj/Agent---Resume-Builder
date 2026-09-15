@@ -7,6 +7,7 @@ import { ILoggerService } from './shared/services/logger/logger.service.interfac
 import { IJwtService } from './shared/services/jwt/jwt.service.interface';
 import { config } from './shared/config';
 import { AuthRoutes } from './modules/auth/presentation/auth.routes';
+import { MasterVaultRoutes } from './modules/master-vault/presentation/master-vault.routes';
 import { ErrorHandler } from './shared/core/error-handler';
 
 export class App {
@@ -40,6 +41,9 @@ export class App {
     // Feature routes
     const authRoutes = new AuthRoutes(db, logger, jwt);
     app.use('/api/auth', authRoutes.getRouter());
+
+    const masterVaultRoutes = new MasterVaultRoutes(db, logger, jwt);
+    app.use('/api/vault', masterVaultRoutes.getRouter());
 
     // Error handling
     app.use(ErrorHandler.handleNotFound);

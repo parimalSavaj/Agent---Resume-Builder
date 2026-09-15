@@ -46,7 +46,15 @@ export class ValidationMiddleware {
         );
         return;
       }
-      req.query = result.data;
+      // Express 5 defines req.query as a getter-only accessor, so a plain
+      // assignment (`req.query = result.data`) throws "Cannot set property
+      // query of #<IncomingMessage> which has only a getter". Redefining the
+      // property is required to swap in the parsed/coerced query data.
+      Object.defineProperty(req, 'query', {
+        value: result.data,
+        writable: true,
+        configurable: true,
+      });
       next();
     };
   }

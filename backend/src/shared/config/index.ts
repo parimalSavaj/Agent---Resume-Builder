@@ -15,6 +15,9 @@ const configSchema = z.object({
   jwtRefreshExpiresIn: z.string().default('7d'),
 
   clientOrigin: z.string().default('http://localhost:5173'),
+
+  openRouterApiKey: z.string().min(1, 'OPENROUTER_API_KEY is required'),
+  openRouterModel: z.string().default('google/gemini-2.0-flash-001'),
 });
 
 const parsed = configSchema.safeParse({
@@ -26,6 +29,8 @@ const parsed = configSchema.safeParse({
   jwtAccessExpiresIn: process.env['JWT_ACCESS_EXPIRES_IN'],
   jwtRefreshExpiresIn: process.env['JWT_REFRESH_EXPIRES_IN'],
   clientOrigin: process.env['CLIENT_ORIGIN'],
+  openRouterApiKey: process.env['OPENROUTER_API_KEY'],
+  openRouterModel: process.env['OPENROUTER_MODEL'],
 });
 
 if (!parsed.success) {

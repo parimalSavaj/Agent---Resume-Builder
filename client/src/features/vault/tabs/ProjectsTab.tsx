@@ -1,0 +1,243 @@
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as vaultApi from "../vaultApi";
+import type { Project } from "../types";
+import type { ProjectInput } from "../vaultApi";
+import { BulletList } from "../components/BulletList";
+import { AnalyzeField } from "../components/AnalyzeField";
+
+interface FormState {
+  name: string;
+  description: string;
+  url: string;
+  startDate: string;
+  endDate: string;
+}
+
+const emptyForm: FormState = { name: "", description: "", url: "", startDate: "", endDate: "" };
+
+function toInput(form: FormState): ProjectInput {
+  return {
+    name: form.name,
+    description: form.description.trim() ? form.description.trim() : null,
+    url: form.url.trim() ? form.url.trim() : null,
+    startDate: form.startDate || null,
+    endDate: form.endDate || null,
+  };
+}
+
+export function ProjectsTab() {
+  const queryClient = useQueryClient();
+  const { data: items, isLoading } = useQuery({ queryKey: ["projects"], queryFn: vaultApi.listProjects });
+
+  const [editingId, setEditingId] = useState<string | "new" | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["projects"] });
+
+  const createMutation = useMutation({
+    mutationFn: (input: ProjectInput) => vaultApi.createProject(input),
+    onSuccess: (created) => {
+      invalidate();
+      setEditingId(null);
+      setForm(emptyForm);
+      setExpandedId(created.id);
+    },
+    onError: () => setFormError("Failed to save - please try again."),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: ProjectInput }) => vaultApi.updateProject(id, input),
+    onSuccess: () => {
+      invalidate();
+      setEditingId(null);
+      setForm(emptyForm);
+    },
+    onError: () => setFormError("Failed to save - please try again."),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => vaultApi.deleteProject(id),
+    onSuccess: () => invalidate(),
+  });
+
+  const startCreate = () => {
+    setEditingId("new");
+    setForm(emptyForm);
+    setFormError(null);
+  };
+
+  const startEdit = (item: Project) => {
+    setEditingId(item.id);
+    setForm({
+      name: item.name,
+      description: item.description ?? "",
+      url: item.url ?? "",
+      startDate: item.startDate ?? "",
+      endDate: item.endDate ?? "",
+    });
+    setFormError(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError(null);
+  };
+
+  const submit = () => {
+    if (!form.name.trim()) {
+      setFormError("Project name is required");
+      return;
+    }
+    setFormError(null);
+    const input = toInput(form);
+    if (editingId === "new") {
+      createMutation.mutate(input);
+    } else if (editingId) {
+      updateMutation.mutate({ id: editingId, input });
+    }
+  };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
+  const renderForm = () => (
+    <div className="rounded-md border border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+        <input
+          type="text"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+      <AnalyzeField
+        label="Description"
+        value={form.description}
+        onChange={(description) => setForm({ ...form, description })}
+      />
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+        <input
+          type="text"
+          value={form.url}
+          onChange={(e) => setForm({ ...form, url: e.target.value })}
+          placeholder="https://..."
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+          <input
+            type="date"
+            value={form.startDate}
+            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+          <input
+            type="date"
+            value={form.endDate}
+            onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
+      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={submit}
+          disabled={isSaving}
+          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
+        >
+          {isSaving ? "Saving..." : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={cancelEdit}
+          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">Projects</h2>
+        {editingId === null && (
+          <button
+            type="button"
+            onClick={startCreate}
+            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500"
+          >
+            + Add project
+          </button>
+        )}
+      </div>
+
+      {editingId === "new" && renderForm()}
+
+      {isLoading && <p className="text-sm text-gray-400">Loading...</p>}
+
+      <ul className="space-y-3">
+        {items?.map((item) =>
+          editingId === item.id ? (
+            <li key={item.id}>{renderForm()}</li>
+          ) : (
+            <li key={item.id} className="rounded-md border border-gray-200 p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">{item.name}</p>
+                  {item.description && <p className="text-sm text-gray-600 mt-0.5">{item.description}</p>}
+                  {(item.startDate || item.endDate) && (
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {item.startDate ?? "?"} – {item.endDate ?? "Present"}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    {expandedId === item.id ? "Hide bullets" : "Bullets"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => startEdit(item)}
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteMutation.mutate(item.id)}
+                    className="text-sm font-medium text-red-600 hover:text-red-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              {expandedId === item.id && <BulletList parentType="project" parentId={item.id} />}
+            </li>
+          ),
+        )}
+      </ul>
+
+      {!isLoading && items?.length === 0 && editingId === null && (
+        <p className="text-sm text-gray-400">No projects yet.</p>
+      )}
+    </div>
+  );
+}
