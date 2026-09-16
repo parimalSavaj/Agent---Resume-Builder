@@ -25,7 +25,7 @@ async function refreshAccessToken(): Promise<string | null> {
     const response = await axios.post(`${baseURL}/auth/refresh`, {
       refreshToken: auth.refreshToken,
     });
-    const { accessToken, refreshToken, user } = response.data;
+    const { accessToken, refreshToken, user } = response.data.data;
     setStoredAuth({ accessToken, refreshToken, user });
     return accessToken;
   } catch {
