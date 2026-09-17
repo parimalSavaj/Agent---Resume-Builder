@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { isAxiosError } from "axios";
+import { Sparkles } from "lucide-react";
 import { analyzeText } from "../vaultApi";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AnalyzeFieldProps {
   label: string;
@@ -53,60 +57,52 @@ export function AnalyzeField({ label, value, onChange, rows = 3, placeholder, re
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <label className="block text-sm font-medium text-gray-700">
+        <Label>
           {label}
-          {required && <span className="text-red-500"> *</span>}
-        </label>
-        <button
+          {required && <span className="text-destructive"> *</span>}
+        </Label>
+        <Button
           type="button"
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-xs"
           onClick={handleAnalyze}
           disabled={isAnalyzing || !value.trim()}
-          className="text-xs font-medium text-indigo-600 hover:text-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isAnalyzing ? "Analyzing..." : "✨ Analyze"}
-        </button>
+          <Sparkles className="mr-1" />
+          {isAnalyzing ? "Analyzing..." : "Analyze"}
+        </Button>
       </div>
 
-      <textarea
+      <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
         placeholder={placeholder}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
 
       {suggestion && (
-        <div className="mt-2 rounded-md border border-indigo-200 bg-indigo-50 p-3">
-          <p className="text-xs font-semibold text-indigo-700 mb-2">AI suggestion - review before applying</p>
+        <div className="mt-2 rounded-md border border-primary/40 bg-primary/5 p-3">
+          <p className="text-xs font-semibold text-primary mb-2">AI suggestion - review before applying</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Original</p>
-              <p className="rounded bg-white border border-gray-200 p-2 text-gray-700 whitespace-pre-wrap">{value}</p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Original</p>
+              <p className="rounded border bg-background p-2 text-foreground whitespace-pre-wrap">{value}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Suggested</p>
-              <p className="rounded bg-white border border-gray-200 p-2 text-gray-900 whitespace-pre-wrap">
-                {suggestion}
-              </p>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Suggested</p>
+              <p className="rounded border bg-background p-2 text-foreground whitespace-pre-wrap">{suggestion}</p>
             </div>
           </div>
           <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={acceptSuggestion}
-              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500"
-            >
+            <Button size="sm" onClick={acceptSuggestion}>
               Accept suggestion
-            </button>
-            <button
-              type="button"
-              onClick={rejectSuggestion}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-            >
+            </Button>
+            <Button size="sm" variant="outline" onClick={rejectSuggestion}>
               Keep original
-            </button>
+            </Button>
           </div>
         </div>
       )}

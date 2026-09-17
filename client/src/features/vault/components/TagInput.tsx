@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
+import { X } from "lucide-react";
 
 interface TagInputProps {
   tags: string[];
@@ -34,20 +35,20 @@ export function TagInput({ tags, onChange, placeholder }: TagInputProps) {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-gray-300 px-2 py-1.5 focus-within:ring-2 focus-within:ring-indigo-500">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-2 py-1.5 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background">
         {tags.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700"
+            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
           >
             {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}
-              className="text-indigo-500 hover:text-indigo-700"
+              className="text-primary/70 hover:text-primary"
               aria-label={`Remove tag ${tag}`}
             >
-              ×
+              <X className="h-3 w-3" />
             </button>
           </span>
         ))}
@@ -61,11 +62,11 @@ export function TagInput({ tags, onChange, placeholder }: TagInputProps) {
             setDraft("");
           }}
           placeholder={tags.length === 0 ? placeholder ?? "Add a tag and press Enter" : ""}
-          className="flex-1 min-w-[8ch] border-none py-0.5 text-sm focus:outline-none focus:ring-0"
+          className="flex-1 min-w-[8ch] border-none bg-transparent py-0.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
         />
       </div>
       {tags.length === 0 && (
-        <p className="mt-1 text-xs text-amber-600">Untagged - this bullet will be harder to match to a job later.</p>
+        <p className="mt-1 text-xs text-warning">Untagged - this bullet will be harder to match to a job later.</p>
       )}
     </div>
   );

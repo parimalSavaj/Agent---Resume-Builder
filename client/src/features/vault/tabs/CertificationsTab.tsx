@@ -3,6 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as vaultApi from "../vaultApi";
 import type { Certification } from "../types";
 import type { CertificationInput } from "../vaultApi";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface FormState {
   name: string;
@@ -103,137 +107,112 @@ export function CertificationsTab() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const renderForm = () => (
-    <div className="rounded-md border border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+    <Card className="border-primary/40 bg-primary/5">
+      <CardContent className="p-4 space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Name *</Label>
+            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Issuer</Label>
+            <Input value={form.issuer} onChange={(e) => setForm({ ...form, issuer: e.target.value })} />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Issuer</label>
-          <input
-            type="text"
-            value={form.issuer}
-            onChange={(e) => setForm({ ...form, issuer: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Issue date</Label>
+            <Input
+              type="date"
+              value={form.issueDate}
+              onChange={(e) => setForm({ ...form, issueDate: e.target.value })}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Expiration date</Label>
+            <Input
+              type="date"
+              value={form.expirationDate}
+              onChange={(e) => setForm({ ...form, expirationDate: e.target.value })}
+            />
+          </div>
         </div>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Issue date</label>
-          <input
-            type="date"
-            value={form.issueDate}
-            onChange={(e) => setForm({ ...form, issueDate: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+        <div className="space-y-1.5">
+          <Label>Credential ID</Label>
+          <Input value={form.credentialId} onChange={(e) => setForm({ ...form, credentialId: e.target.value })} />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Expiration date</label>
-          <input
-            type="date"
-            value={form.expirationDate}
-            onChange={(e) => setForm({ ...form, expirationDate: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+        {formError && <p className="text-sm text-destructive">{formError}</p>}
+        <div className="flex gap-2">
+          <Button onClick={submit} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+          <Button variant="outline" onClick={cancelEdit}>
+            Cancel
+          </Button>
         </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Credential ID</label>
-        <input
-          type="text"
-          value={form.credentialId}
-          onChange={(e) => setForm({ ...form, credentialId: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={isSaving}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
-        >
-          {isSaving ? "Saving..." : "Save"}
-        </button>
-        <button
-          type="button"
-          onClick={cancelEdit}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Certifications</h2>
+        <h2 className="text-lg font-semibold">Certifications</h2>
         {editingId === null && (
-          <button
-            type="button"
-            onClick={startCreate}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500"
-          >
+          <Button size="sm" onClick={startCreate}>
             + Add certification
-          </button>
+          </Button>
         )}
       </div>
 
       {editingId === "new" && renderForm()}
 
-      {isLoading && <p className="text-sm text-gray-400">Loading...</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
 
       <ul className="space-y-3">
         {items?.map((item) =>
           editingId === item.id ? (
             <li key={item.id}>{renderForm()}</li>
           ) : (
-            <li key={item.id} className="rounded-md border border-gray-200 p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">{item.name}</p>
-                  <p className="text-sm text-gray-500">{item.issuer}</p>
-                  {(item.issueDate || item.expirationDate) && (
-                    <p className="text-sm text-gray-500">
-                      {item.issueDate ?? "?"} – {item.expirationDate ?? "No expiration"}
-                    </p>
-                  )}
-                  {item.credentialId && <p className="text-xs text-gray-400">ID: {item.credentialId}</p>}
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(item)}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteMutation.mutate(item.id)}
-                    className="text-sm font-medium text-red-600 hover:text-red-500"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
+            <li key={item.id}>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">{item.issuer}</p>
+                      {(item.issueDate || item.expirationDate) && (
+                        <p className="text-sm text-muted-foreground">
+                          {item.issueDate ?? "?"} – {item.expirationDate ?? "No expiration"}
+                        </p>
+                      )}
+                      {item.credentialId && (
+                        <p className="text-xs text-muted-foreground">ID: {item.credentialId}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => deleteMutation.mutate(item.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </li>
           ),
         )}
       </ul>
 
       {!isLoading && items?.length === 0 && editingId === null && (
-        <p className="text-sm text-gray-400">No certifications yet.</p>
+        <p className="text-sm text-muted-foreground">No certifications yet.</p>
       )}
     </div>
   );

@@ -4,6 +4,10 @@ import type { BulletPoint, BulletParentType } from "../types";
 import * as vaultApi from "../vaultApi";
 import { TagInput } from "./TagInput";
 import { AnalyzeField } from "./AnalyzeField";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 interface BulletListProps {
   parentType: BulletParentType;
@@ -101,130 +105,84 @@ export function BulletList({ parentType, parentId }: BulletListProps) {
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
+  const renderEditor = () => (
+    <Card className="border-primary/40 bg-primary/5">
+      <CardContent className="p-3 space-y-2">
+        <AnalyzeField label="Bullet text" value={form.text} onChange={(text) => setForm({ ...form, text })} required />
+        <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
+        <Input
+          value={form.metric}
+          onChange={(e) => setForm({ ...form, metric: e.target.value })}
+          placeholder="Optional metric (e.g. reduced cost by 18%)"
+        />
+        {formError && <p className="text-sm text-destructive">{formError}</p>}
+        <div className="flex gap-2">
+          <Button size="sm" onClick={submitForm} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={cancelEdit}>
+            Cancel
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="mt-3 border-t border-gray-100 pt-3">
+    <div className="mt-3 border-t pt-3">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500">Bullet Points</h4>
+        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bullet Points</h4>
         {editingId === null && (
-          <button
-            type="button"
-            onClick={startCreate}
-            className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
-          >
+          <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={startCreate}>
             + Add bullet
-          </button>
+          </Button>
         )}
       </div>
 
-      {isLoading && <p className="text-sm text-gray-400">Loading bullets...</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Loading bullets...</p>}
 
       <ul className="space-y-2">
         {bullets?.map((bullet) =>
           editingId === bullet.id ? (
-            <li key={bullet.id} className="rounded-md border border-indigo-200 bg-indigo-50/40 p-3 space-y-2">
-              <AnalyzeField label="Bullet text" value={form.text} onChange={(text) => setForm({ ...form, text })} required />
-              <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
-              <input
-                type="text"
-                value={form.metric}
-                onChange={(e) => setForm({ ...form, metric: e.target.value })}
-                placeholder="Optional metric (e.g. reduced cost by 18%)"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              {formError && <p className="text-sm text-red-600">{formError}</p>}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={submitForm}
-                  disabled={isSaving}
-                  className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
-                >
-                  {isSaving ? "Saving..." : "Save"}
-                </button>
-                <button
-                  type="button"
-                  onClick={cancelEdit}
-                  className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            </li>
+            <li key={bullet.id}>{renderEditor()}</li>
           ) : (
-            <li key={bullet.id} className="rounded-md border border-gray-200 p-3">
-              <p className="text-sm text-gray-800">{bullet.text}</p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                {bullet.tags.map((tag) => (
-                  <span key={tag} className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                    {tag}
-                  </span>
-                ))}
-                {bullet.isUntagged && (
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                    Untagged
-                  </span>
-                )}
-                {bullet.metric && (
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                    {bullet.metric}
-                  </span>
-                )}
-              </div>
-              <div className="mt-2 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => startEdit(bullet)}
-                  className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteMutation.mutate(bullet.id)}
-                  className="text-xs font-medium text-red-600 hover:text-red-500"
-                >
-                  Delete
-                </button>
-              </div>
+            <li key={bullet.id}>
+              <Card>
+                <CardContent className="p-3">
+                  <p className="text-sm">{bullet.text}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    {bullet.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {bullet.isUntagged && <Badge variant="warning">Untagged</Badge>}
+                    {bullet.metric && <Badge variant="success">{bullet.metric}</Badge>}
+                  </div>
+                  <div className="mt-2 flex gap-1">
+                    <Button variant="ghost" size="sm" className="h-auto px-2 py-1 text-xs" onClick={() => startEdit(bullet)}>
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto px-2 py-1 text-xs text-destructive hover:text-destructive"
+                      onClick={() => deleteMutation.mutate(bullet.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </li>
           ),
         )}
       </ul>
 
-      {editingId === "new" && (
-        <li className="mt-2 list-none rounded-md border border-indigo-200 bg-indigo-50/40 p-3 space-y-2">
-          <AnalyzeField label="Bullet text" value={form.text} onChange={(text) => setForm({ ...form, text })} required />
-          <TagInput tags={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
-          <input
-            type="text"
-            value={form.metric}
-            onChange={(e) => setForm({ ...form, metric: e.target.value })}
-            placeholder="Optional metric (e.g. reduced cost by 18%)"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          {formError && <p className="text-sm text-red-600">{formError}</p>}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={submitForm}
-              disabled={isSaving}
-              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
-            >
-              {isSaving ? "Saving..." : "Save"}
-            </button>
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </li>
-      )}
+      {editingId === "new" && <div className="mt-2">{renderEditor()}</div>}
 
       {!isLoading && bullets?.length === 0 && editingId === null && (
-        <p className="text-sm text-gray-400">No bullet points yet.</p>
+        <p className="text-sm text-muted-foreground">No bullet points yet.</p>
       )}
     </div>
   );

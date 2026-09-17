@@ -4,6 +4,10 @@ import * as vaultApi from "../vaultApi";
 import type { WorkExperience } from "../types";
 import type { WorkExperienceInput } from "../vaultApi";
 import { BulletList } from "../components/BulletList";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface FormState {
   company: string;
@@ -109,153 +113,126 @@ export function WorkExperienceTab() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const renderForm = () => (
-    <div className="rounded-md border border-indigo-200 bg-indigo-50/40 p-4 space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Company *</label>
-          <input
-            type="text"
-            value={form.company}
-            onChange={(e) => setForm({ ...form, company: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+    <Card className="border-primary/40 bg-primary/5">
+      <CardContent className="p-4 space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Company *</Label>
+            <Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Title *</Label>
+            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+        <div className="space-y-1.5">
+          <Label>Location</Label>
+          <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
         </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-        <input
-          type="text"
-          value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start date *</label>
-          <input
-            type="date"
-            value={form.startDate}
-            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
-          <input
-            type="date"
-            value={form.endDate}
-            disabled={form.isCurrent}
-            onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100"
-          />
-          <label className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={form.isCurrent}
-              onChange={(e) => setForm({ ...form, isCurrent: e.target.checked, endDate: "" })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label>Start date *</Label>
+            <Input
+              type="date"
+              value={form.startDate}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
             />
-            I currently work here
-          </label>
+          </div>
+          <div className="space-y-1.5">
+            <Label>End date</Label>
+            <Input
+              type="date"
+              value={form.endDate}
+              disabled={form.isCurrent}
+              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+            />
+            <label className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={form.isCurrent}
+                onChange={(e) => setForm({ ...form, isCurrent: e.target.checked, endDate: "" })}
+              />
+              I currently work here
+            </label>
+          </div>
         </div>
-      </div>
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={isSaving}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
-        >
-          {isSaving ? "Saving..." : "Save"}
-        </button>
-        <button
-          type="button"
-          onClick={cancelEdit}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+        {formError && <p className="text-sm text-destructive">{formError}</p>}
+        <div className="flex gap-2">
+          <Button onClick={submit} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+          <Button variant="outline" onClick={cancelEdit}>
+            Cancel
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Work Experience</h2>
+        <h2 className="text-lg font-semibold">Work Experience</h2>
         {editingId === null && (
-          <button
-            type="button"
-            onClick={startCreate}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-indigo-500"
-          >
+          <Button size="sm" onClick={startCreate}>
             + Add work experience
-          </button>
+          </Button>
         )}
       </div>
 
       {editingId === "new" && renderForm()}
 
-      {isLoading && <p className="text-sm text-gray-400">Loading...</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
 
       <ul className="space-y-3">
         {items?.map((item) =>
           editingId === item.id ? (
             <li key={item.id}>{renderForm()}</li>
           ) : (
-            <li key={item.id} className="rounded-md border border-gray-200 p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {item.title} · {item.company}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {item.location ? `${item.location} · ` : ""}
-                    {item.startDate} – {item.endDate ?? "Present"}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    {expandedId === item.id ? "Hide bullets" : "Bullets"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => startEdit(item)}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteMutation.mutate(item.id)}
-                    className="text-sm font-medium text-red-600 hover:text-red-500"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-              {expandedId === item.id && <BulletList parentType="work_experience" parentId={item.id} />}
+            <li key={item.id}>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-medium">
+                        {item.title} · {item.company}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.location ? `${item.location} · ` : ""}
+                        {item.startDate} – {item.endDate ?? "Present"}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                      >
+                        {expandedId === item.id ? "Hide bullets" : "Bullets"}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => deleteMutation.mutate(item.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                  {expandedId === item.id && <BulletList parentType="work_experience" parentId={item.id} />}
+                </CardContent>
+              </Card>
             </li>
           ),
         )}
       </ul>
 
       {!isLoading && items?.length === 0 && editingId === null && (
-        <p className="text-sm text-gray-400">No work experience entries yet.</p>
+        <p className="text-sm text-muted-foreground">No work experience entries yet.</p>
       )}
     </div>
   );
