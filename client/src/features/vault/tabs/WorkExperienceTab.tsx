@@ -142,6 +142,8 @@ export function WorkExperienceTab() {
           label="Description"
           value={form.description}
           onChange={(description) => setForm({ ...form, description })}
+          entryType="work_experience"
+          context={{ title: form.title, company: form.company }}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">

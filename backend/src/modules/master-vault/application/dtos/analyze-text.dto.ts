@@ -1,14 +1,31 @@
 import { Request } from 'express';
+import { AnalyzeEntryType } from '../prompts/analyze-prompt.builder';
 
 export class AnalyzeTextRequestDto {
   readonly text: string;
+  readonly entryType: AnalyzeEntryType;
+  readonly contextTitle: string;
+  readonly contextCompany: string | null;
 
-  private constructor(props: { text: string }) {
+  private constructor(props: {
+    text: string;
+    entryType: AnalyzeEntryType;
+    contextTitle: string;
+    contextCompany: string | null;
+  }) {
     this.text = props.text;
+    this.entryType = props.entryType;
+    this.contextTitle = props.contextTitle;
+    this.contextCompany = props.contextCompany;
   }
 
   static fromRequest(req: Request): AnalyzeTextRequestDto {
-    return new AnalyzeTextRequestDto({ text: req.body.text });
+    return new AnalyzeTextRequestDto({
+      text: req.body.text,
+      entryType: req.body.entryType,
+      contextTitle: req.body.context?.title ?? '',
+      contextCompany: req.body.context?.company ?? null,
+    });
   }
 }
 

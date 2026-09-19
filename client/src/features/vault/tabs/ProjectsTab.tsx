@@ -115,6 +115,8 @@ export function ProjectsTab() {
           label="Description"
           value={form.description}
           onChange={(description) => setForm({ ...form, description })}
+          entryType="project"
+          context={{ title: form.name }}
         />
         <div className="space-y-1.5">
           <Label>URL</Label>

@@ -7,12 +7,12 @@ import { config } from '../../../shared/config';
 const OPENROUTER_CHAT_COMPLETIONS_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const REQUEST_TIMEOUT_MS = 20000;
 
-const SYSTEM_PROMPT =
-  'You correct typos, spelling, and grammar in resume content, and smooth out awkward phrasing. ' +
-  'You must NEVER change facts, dates, numbers, metrics, tags, or the names of companies, projects, ' +
-  'schools, or skills. Only fix wording, spelling, and grammar. ' +
-  'Respond with ONLY the corrected text - no explanation, no quotes, no markdown formatting.';
-
+/**
+ * Thin, domain-agnostic wrapper around the OpenRouter chat completions API.
+ * It has no knowledge of "work experience", "project", or any other vault
+ * concept - the caller (application layer) decides what system prompt to
+ * send. This keeps the service reusable for any future text-generation need.
+ */
 export class OpenRouterExternalService implements IOpenRouterExternalService {
   constructor(private readonly logger: ILoggerService) {}
 
@@ -32,7 +32,7 @@ export class OpenRouterExternalService implements IOpenRouterExternalService {
         body: JSON.stringify({
           model: config.openRouterModel,
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: params.systemPrompt },
             { role: 'user', content: params.text },
           ],
           temperature: 0.2,

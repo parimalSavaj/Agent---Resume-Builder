@@ -2,6 +2,7 @@ import { IOpenRouterExternalService } from '../../../infrastructure/external-ser
 import { ILoggerService } from '../../../shared/services/logger/logger.service.interface';
 import { ValidationError, InternalError } from '../../../shared/core/api-error';
 import { AnalyzeTextRequestDto, AnalyzeTextResponseDto } from './dtos/analyze-text.dto';
+import { AnalyzePromptBuilder } from './prompts/analyze-prompt.builder';
 
 export class AnalyzeTextUseCase {
   constructor(
@@ -10,14 +11,23 @@ export class AnalyzeTextUseCase {
   ) {}
 
   async execute(dto: AnalyzeTextRequestDto): Promise<AnalyzeTextResponseDto> {
-    this.logger.info('AnalyzeText - started');
+    this.logger.info('AnalyzeText - started', { entryType: dto.entryType });
 
     if (!dto.text || dto.text.trim().length === 0) {
       throw new ValidationError('Text is required to analyze');
     }
 
+    if (!dto.contextTitle || dto.contextTitle.trim().length === 0) {
+      throw new ValidationError('Context title is required to analyze');
+    }
+
+    const systemPrompt = AnalyzePromptBuilder.build(dto.entryType, {
+      title: dto.contextTitle,
+      company: dto.contextCompany,
+    });
+
     try {
-      const result = await this.openRouterService.correctText({ text: dto.text });
+      const result = await this.openRouterService.correctText({ text: dto.text, systemPrompt });
 
       this.logger.info('AnalyzeText - completed');
 

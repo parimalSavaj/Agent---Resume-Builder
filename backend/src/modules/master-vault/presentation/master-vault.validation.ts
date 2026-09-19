@@ -97,4 +97,9 @@ export const skillParamsSchema = z.object({
 // --- Analyze ---
 export const analyzeTextBodySchema = z.object({
   text: z.string().min(1, 'Text is required to analyze'),
+  entryType: z.enum(['work_experience', 'project']),
+  context: z.object({
+    title: z.string().min(1, 'context.title is required'),
+    company: z.string().max(255).nullish(),
+  }),
 });

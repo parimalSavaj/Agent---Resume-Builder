@@ -146,12 +146,27 @@ export async function deleteSkill(id: string): Promise<void> {
 
 // --- Analyze ---
 
+export type AnalyzeEntryType = "work_experience" | "project";
+
+export interface AnalyzeContext {
+  title: string;
+  company?: string | null;
+}
+
 export interface AnalyzeTextResult {
   originalText: string;
   correctedText: string;
 }
 
-export async function analyzeText(text: string): Promise<AnalyzeTextResult> {
-  const { data } = await apiClient.post<{ data: AnalyzeTextResult }>("/vault/analyze", { text });
+export async function analyzeText(
+  text: string,
+  entryType: AnalyzeEntryType,
+  context: AnalyzeContext,
+): Promise<AnalyzeTextResult> {
+  const { data } = await apiClient.post<{ data: AnalyzeTextResult }>("/vault/analyze", {
+    text,
+    entryType,
+    context,
+  });
   return data.data;
 }

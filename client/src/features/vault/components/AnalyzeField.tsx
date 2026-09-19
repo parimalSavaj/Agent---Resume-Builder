@@ -2,6 +2,7 @@ import { useState } from "react";
 import { isAxiosError } from "axios";
 import { Sparkles } from "lucide-react";
 import { analyzeText } from "../vaultApi";
+import type { AnalyzeContext, AnalyzeEntryType } from "../vaultApi";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +11,8 @@ interface AnalyzeFieldProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  entryType: AnalyzeEntryType;
+  context: AnalyzeContext;
   rows?: number;
   placeholder?: string;
   required?: boolean;
@@ -17,22 +20,36 @@ interface AnalyzeFieldProps {
 
 /**
  * A textarea paired with an "Analyze" action that sends the current text to the
- * LLM for a typo/grammar/phrasing pass. The correction is shown as a before/after
- * comparison and only replaces the field's value if the person explicitly accepts
- * it - "Save" never touches the AI, and a failed/timed-out analysis leaves the
- * original text untouched.
+ * LLM for a context-aware rewrite pass (grounded in the parent entry's title/
+ * company so the LLM writes relevantly, not just a spellcheck). The result is
+ * shown as a before/after comparison and only replaces the field's value if the
+ * person explicitly accepts it - "Save" never touches the AI, and a failed/
+ * timed-out analysis leaves the original text untouched.
  */
-export function AnalyzeField({ label, value, onChange, rows = 3, placeholder, required }: AnalyzeFieldProps) {
+export function AnalyzeField({
+  label,
+  value,
+  onChange,
+  entryType,
+  context,
+  rows = 3,
+  placeholder,
+  required,
+}: AnalyzeFieldProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
     if (!value.trim()) return;
+    if (!context.title.trim()) {
+      setError("Add a title/name before analyzing so the AI has context to work with.");
+      return;
+    }
     setError(null);
     setIsAnalyzing(true);
     try {
-      const result = await analyzeText(value);
+      const result = await analyzeText(value, entryType, context);
       setSuggestion(result.correctedText);
     } catch (err) {
       if (isAxiosError<{ error?: string }>(err) && err.response?.data?.error) {
