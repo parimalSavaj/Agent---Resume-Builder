@@ -1,13 +1,5 @@
 import { apiClient } from "../../lib/apiClient";
-import type {
-  WorkExperience,
-  Project,
-  Education,
-  Certification,
-  Skill,
-  BulletPoint,
-  BulletPointFilters,
-} from "./types";
+import type { WorkExperience, Project, Education, Certification, Skill } from "./types";
 
 // --- Work Experience ---
 
@@ -149,43 +141,6 @@ export async function updateSkill(id: string, input: SkillInput): Promise<Skill>
 
 export async function deleteSkill(id: string): Promise<void> {
   await apiClient.delete(`/vault/skills/${id}`);
-}
-
-// --- Bullet Point ---
-
-export interface BulletPointInput {
-  parentType: "work_experience" | "project";
-  parentId: string;
-  text: string;
-  tags: string[];
-  metric: string | null;
-}
-
-export interface BulletPointUpdateInput {
-  text: string;
-  tags: string[];
-  metric: string | null;
-}
-
-export async function listBulletPoints(filters?: BulletPointFilters): Promise<BulletPoint[]> {
-  const { data } = await apiClient.get<{ data: { items: BulletPoint[] } }>("/vault/bullet-points", {
-    params: filters,
-  });
-  return data.data.items;
-}
-
-export async function createBulletPoint(input: BulletPointInput): Promise<BulletPoint> {
-  const { data } = await apiClient.post<{ data: BulletPoint }>("/vault/bullet-points", input);
-  return data.data;
-}
-
-export async function updateBulletPoint(id: string, input: BulletPointUpdateInput): Promise<BulletPoint> {
-  const { data } = await apiClient.put<{ data: BulletPoint }>(`/vault/bullet-points/${id}`, input);
-  return data.data;
-}
-
-export async function deleteBulletPoint(id: string): Promise<void> {
-  await apiClient.delete(`/vault/bullet-points/${id}`);
 }
 
 // --- Analyze ---

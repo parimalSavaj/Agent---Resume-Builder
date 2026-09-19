@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as vaultApi from "../vaultApi";
 import type { Project } from "../types";
 import type { ProjectInput } from "../vaultApi";
-import { BulletList } from "../components/BulletList";
 import { AnalyzeField } from "../components/AnalyzeField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,17 +36,15 @@ export function ProjectsTab() {
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["projects"] });
 
   const createMutation = useMutation({
     mutationFn: (input: ProjectInput) => vaultApi.createProject(input),
-    onSuccess: (created) => {
+    onSuccess: () => {
       invalidate();
       setEditingId(null);
       setForm(emptyForm);
-      setExpandedId(created.id);
     },
     onError: () => setFormError("Failed to save - please try again."),
   });
@@ -194,13 +191,6 @@ export function ProjectsTab() {
                       )}
                     </div>
                     <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                      >
-                        {expandedId === item.id ? "Hide bullets" : "Bullets"}
-                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
                         Edit
                       </Button>
@@ -214,7 +204,6 @@ export function ProjectsTab() {
                       </Button>
                     </div>
                   </div>
-                  {expandedId === item.id && <BulletList parentType="project" parentId={item.id} />}
                 </CardContent>
               </Card>
             </li>

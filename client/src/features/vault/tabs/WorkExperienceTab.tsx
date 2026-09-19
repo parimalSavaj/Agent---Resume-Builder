@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as vaultApi from "../vaultApi";
 import type { WorkExperience } from "../types";
 import type { WorkExperienceInput } from "../vaultApi";
-import { BulletList } from "../components/BulletList";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,17 +39,15 @@ export function WorkExperienceTab() {
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["work-experiences"] });
 
   const createMutation = useMutation({
     mutationFn: (input: WorkExperienceInput) => vaultApi.createWorkExperience(input),
-    onSuccess: (created) => {
+    onSuccess: () => {
       invalidate();
       setEditingId(null);
       setForm(emptyForm);
-      setExpandedId(created.id);
     },
     onError: () => setFormError("Failed to save - please try again."),
   });
@@ -203,13 +200,6 @@ export function WorkExperienceTab() {
                       </p>
                     </div>
                     <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
-                      >
-                        {expandedId === item.id ? "Hide bullets" : "Bullets"}
-                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
                         Edit
                       </Button>
@@ -223,7 +213,6 @@ export function WorkExperienceTab() {
                       </Button>
                     </div>
                   </div>
-                  {expandedId === item.id && <BulletList parentType="work_experience" parentId={item.id} />}
                 </CardContent>
               </Card>
             </li>

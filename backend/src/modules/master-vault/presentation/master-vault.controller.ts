@@ -27,11 +27,6 @@ import { ListSkillsUseCase } from '../application/list-skills.use-case';
 import { UpdateSkillUseCase } from '../application/update-skill.use-case';
 import { DeleteSkillUseCase } from '../application/delete-skill.use-case';
 
-import { CreateBulletPointUseCase } from '../application/create-bullet-point.use-case';
-import { ListBulletPointsUseCase } from '../application/list-bullet-points.use-case';
-import { UpdateBulletPointUseCase } from '../application/update-bullet-point.use-case';
-import { DeleteBulletPointUseCase } from '../application/delete-bullet-point.use-case';
-
 import { AnalyzeTextUseCase } from '../application/analyze-text.use-case';
 
 import { CreateWorkExperienceRequestDto } from '../application/dtos/create-work-experience.dto';
@@ -58,11 +53,6 @@ import { CreateSkillRequestDto } from '../application/dtos/create-skill.dto';
 import { ListSkillsRequestDto } from '../application/dtos/list-skills.dto';
 import { UpdateSkillRequestDto } from '../application/dtos/update-skill.dto';
 import { DeleteSkillRequestDto } from '../application/dtos/delete-skill.dto';
-
-import { CreateBulletPointRequestDto } from '../application/dtos/create-bullet-point.dto';
-import { ListBulletPointsRequestDto } from '../application/dtos/list-bullet-points.dto';
-import { UpdateBulletPointRequestDto } from '../application/dtos/update-bullet-point.dto';
-import { DeleteBulletPointRequestDto } from '../application/dtos/delete-bullet-point.dto';
 
 import { AnalyzeTextRequestDto } from '../application/dtos/analyze-text.dto';
 
@@ -92,11 +82,6 @@ export class MasterVaultController {
     private readonly listSkillsUseCase: ListSkillsUseCase,
     private readonly updateSkillUseCase: UpdateSkillUseCase,
     private readonly deleteSkillUseCase: DeleteSkillUseCase,
-
-    private readonly createBulletPointUseCase: CreateBulletPointUseCase,
-    private readonly listBulletPointsUseCase: ListBulletPointsUseCase,
-    private readonly updateBulletPointUseCase: UpdateBulletPointUseCase,
-    private readonly deleteBulletPointUseCase: DeleteBulletPointUseCase,
 
     private readonly analyzeTextUseCase: AnalyzeTextUseCase,
   ) {}
@@ -305,48 +290,6 @@ export class MasterVaultController {
     try {
       const dto = DeleteSkillRequestDto.fromRequest(req);
       await this.deleteSkillUseCase.execute(dto);
-      res.status(HTTP_STATUS.NO_CONTENT).send();
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // --- Bullet Point ---
-
-  createBulletPoint = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const dto = CreateBulletPointRequestDto.fromRequest(req);
-      const result = await this.createBulletPointUseCase.execute(dto);
-      res.status(HTTP_STATUS.CREATED).json(new ApiResponse(HTTP_STATUS.CREATED, result));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  listBulletPoints = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const dto = ListBulletPointsRequestDto.fromRequest(req);
-      const result = await this.listBulletPointsUseCase.execute(dto);
-      res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, result));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateBulletPoint = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const dto = UpdateBulletPointRequestDto.fromRequest(req);
-      const result = await this.updateBulletPointUseCase.execute(dto);
-      res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, result));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  deleteBulletPoint = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const dto = DeleteBulletPointRequestDto.fromRequest(req);
-      await this.deleteBulletPointUseCase.execute(dto);
       res.status(HTTP_STATUS.NO_CONTENT).send();
     } catch (error) {
       next(error);

@@ -93,39 +93,6 @@ export const skillParamsSchema = z.object({
   id: z.string().uuid(),
 });
 
-// --- Bullet Point ---
-export const createBulletPointBodySchema = z.object({
-  parentType: z.enum(['work_experience', 'project']),
-  parentId: z.string().uuid(),
-  text: z.string().min(1, 'Text is required'),
-  tags: z.array(z.string().min(1)).max(20).default([]),
-  metric: z.string().max(255).nullish(),
-});
-
-export const updateBulletPointBodySchema = z.object({
-  text: z.string().min(1, 'Text is required'),
-  tags: z.array(z.string().min(1)).max(20).default([]),
-  metric: z.string().max(255).nullish(),
-});
-
-export const bulletPointParamsSchema = z.object({
-  id: z.string().uuid(),
-});
-
-export const listBulletPointsQuerySchema = z.object({
-  tag: z.string().min(1).optional(),
-  parentType: z.enum(['work_experience', 'project']).optional(),
-  parentId: z.string().uuid().optional(),
-  dateFrom: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'dateFrom must be in YYYY-MM-DD format')
-    .optional(),
-  dateTo: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'dateTo must be in YYYY-MM-DD format')
-    .optional(),
-});
-
 // --- Analyze ---
 export const analyzeTextBodySchema = z.object({
   text: z.string().min(1, 'Text is required to analyze'),

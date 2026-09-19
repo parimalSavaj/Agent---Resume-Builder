@@ -1,14 +1,11 @@
 import { IWorkExperiencesRepository } from '../../../infrastructure/repositories/work-experiences/work-experiences.repository.interface';
-import { IBulletPointsRepository } from '../../../infrastructure/repositories/bullet-points/bullet-points.repository.interface';
 import { ILoggerService } from '../../../shared/services/logger/logger.service.interface';
 import { NotFoundError, InternalError } from '../../../shared/core/api-error';
-import { BulletParentType } from '../../../domain/enums/bullet-parent-type.enum';
 import { DeleteWorkExperienceRequestDto, DeleteWorkExperienceResponseDto } from './dtos/delete-work-experience.dto';
 
 export class DeleteWorkExperienceUseCase {
   constructor(
     private readonly workExperiencesRepo: IWorkExperiencesRepository,
-    private readonly bulletPointsRepo: IBulletPointsRepository,
     private readonly logger: ILoggerService,
   ) {}
 
@@ -22,8 +19,6 @@ export class DeleteWorkExperienceUseCase {
     }
 
     try {
-      const bullets = await this.bulletPointsRepo.findByParent(BulletParentType.WORK_EXPERIENCE, dto.id);
-      await Promise.all(bullets.map((bullet) => this.bulletPointsRepo.delete(bullet.id)));
       await this.workExperiencesRepo.delete(dto.id);
     } catch (error) {
       this.logger.error('DeleteWorkExperience - failed to delete', error instanceof Error ? error : undefined, {

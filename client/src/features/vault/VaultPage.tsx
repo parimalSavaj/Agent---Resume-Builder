@@ -4,7 +4,6 @@ import { ProjectsTab } from "./tabs/ProjectsTab";
 import { EducationTab } from "./tabs/EducationTab";
 import { CertificationsTab } from "./tabs/CertificationsTab";
 import { SkillsTab } from "./tabs/SkillsTab";
-import { SearchTab } from "./tabs/SearchTab";
 import { ThemeToggle } from "@/lib/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,7 +14,6 @@ const TABS = [
   { id: "education", label: "Education" },
   { id: "certifications", label: "Certifications" },
   { id: "skills", label: "Skills" },
-  { id: "search", label: "Search" },
 ] as const;
 
 export function VaultPage() {
@@ -59,9 +57,6 @@ export function VaultPage() {
         </TabsContent>
         <TabsContent value="skills" className="mt-6">
           <SkillsTab />
-        </TabsContent>
-        <TabsContent value="search" className="mt-6">
-          <SearchTab />
         </TabsContent>
       </Tabs>
     </div>

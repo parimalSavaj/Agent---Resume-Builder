@@ -5,7 +5,6 @@ import { ProjectsRepository } from '../../infrastructure/repositories/projects/p
 import { EducationRepository } from '../../infrastructure/repositories/education/education.repository';
 import { CertificationsRepository } from '../../infrastructure/repositories/certifications/certifications.repository';
 import { SkillsRepository } from '../../infrastructure/repositories/skills/skills.repository';
-import { BulletPointsRepository } from '../../infrastructure/repositories/bullet-points/bullet-points.repository';
 import { OpenRouterExternalService } from '../../infrastructure/external-services/openrouter/openrouter.external-service';
 import { IdService } from '../../shared/services/id/id.service';
 
@@ -34,11 +33,6 @@ import { ListSkillsUseCase } from './application/list-skills.use-case';
 import { UpdateSkillUseCase } from './application/update-skill.use-case';
 import { DeleteSkillUseCase } from './application/delete-skill.use-case';
 
-import { CreateBulletPointUseCase } from './application/create-bullet-point.use-case';
-import { ListBulletPointsUseCase } from './application/list-bullet-points.use-case';
-import { UpdateBulletPointUseCase } from './application/update-bullet-point.use-case';
-import { DeleteBulletPointUseCase } from './application/delete-bullet-point.use-case';
-
 import { AnalyzeTextUseCase } from './application/analyze-text.use-case';
 
 import { MasterVaultController } from './presentation/master-vault.controller';
@@ -51,7 +45,6 @@ export class MasterVaultFactory {
     const educationRepo = new EducationRepository(db);
     const certificationsRepo = new CertificationsRepository(db);
     const skillsRepo = new SkillsRepository(db);
-    const bulletPointsRepo = new BulletPointsRepository(db);
 
     // External services
     const openRouterService = new OpenRouterExternalService(logger);
@@ -63,13 +56,13 @@ export class MasterVaultFactory {
     const createWorkExperienceUseCase = new CreateWorkExperienceUseCase(workExperiencesRepo, idService, logger);
     const listWorkExperiencesUseCase = new ListWorkExperiencesUseCase(workExperiencesRepo, logger);
     const updateWorkExperienceUseCase = new UpdateWorkExperienceUseCase(workExperiencesRepo, logger);
-    const deleteWorkExperienceUseCase = new DeleteWorkExperienceUseCase(workExperiencesRepo, bulletPointsRepo, logger);
+    const deleteWorkExperienceUseCase = new DeleteWorkExperienceUseCase(workExperiencesRepo, logger);
 
     // Use cases - Project
     const createProjectUseCase = new CreateProjectUseCase(projectsRepo, idService, logger);
     const listProjectsUseCase = new ListProjectsUseCase(projectsRepo, logger);
     const updateProjectUseCase = new UpdateProjectUseCase(projectsRepo, logger);
-    const deleteProjectUseCase = new DeleteProjectUseCase(projectsRepo, bulletPointsRepo, logger);
+    const deleteProjectUseCase = new DeleteProjectUseCase(projectsRepo, logger);
 
     // Use cases - Education
     const createEducationUseCase = new CreateEducationUseCase(educationRepo, idService, logger);
@@ -88,18 +81,6 @@ export class MasterVaultFactory {
     const listSkillsUseCase = new ListSkillsUseCase(skillsRepo, logger);
     const updateSkillUseCase = new UpdateSkillUseCase(skillsRepo, logger);
     const deleteSkillUseCase = new DeleteSkillUseCase(skillsRepo, logger);
-
-    // Use cases - Bullet Point
-    const createBulletPointUseCase = new CreateBulletPointUseCase(
-      bulletPointsRepo,
-      workExperiencesRepo,
-      projectsRepo,
-      idService,
-      logger,
-    );
-    const listBulletPointsUseCase = new ListBulletPointsUseCase(bulletPointsRepo, logger);
-    const updateBulletPointUseCase = new UpdateBulletPointUseCase(bulletPointsRepo, logger);
-    const deleteBulletPointUseCase = new DeleteBulletPointUseCase(bulletPointsRepo, logger);
 
     // Use case - Analyze
     const analyzeTextUseCase = new AnalyzeTextUseCase(openRouterService, logger);
@@ -129,11 +110,6 @@ export class MasterVaultFactory {
       listSkillsUseCase,
       updateSkillUseCase,
       deleteSkillUseCase,
-
-      createBulletPointUseCase,
-      listBulletPointsUseCase,
-      updateBulletPointUseCase,
-      deleteBulletPointUseCase,
 
       analyzeTextUseCase,
     );

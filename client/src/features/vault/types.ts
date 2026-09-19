@@ -39,23 +39,3 @@ export interface Skill {
   name: string;
   category: string | null;
 }
-
-export type BulletParentType = "work_experience" | "project";
-
-export interface BulletPoint {
-  id: string;
-  parentType: BulletParentType;
-  parentId: string;
-  text: string;
-  tags: string[];
-  metric: string | null;
-  isUntagged: boolean;
-}
-
-export interface BulletPointFilters {
-  tag?: string;
-  parentType?: BulletParentType;
-  parentId?: string;
-  dateFrom?: string;
-  dateTo?: string;
-}

@@ -21,10 +21,6 @@ import {
   createSkillBodySchema,
   updateSkillBodySchema,
   skillParamsSchema,
-  createBulletPointBodySchema,
-  updateBulletPointBodySchema,
-  bulletPointParamsSchema,
-  listBulletPointsQuerySchema,
   analyzeTextBodySchema,
 } from './master-vault.validation';
 
@@ -149,33 +145,6 @@ export class MasterVaultRoutes {
       authenticate,
       ValidationMiddleware.validateParams(skillParamsSchema),
       this.controller.deleteSkill,
-    );
-
-    // --- Bullet Point ---
-    this.router.post(
-      '/bullet-points',
-      authenticate,
-      ValidationMiddleware.validateBody(createBulletPointBodySchema),
-      this.controller.createBulletPoint,
-    );
-    this.router.get(
-      '/bullet-points',
-      authenticate,
-      ValidationMiddleware.validateQuery(listBulletPointsQuerySchema),
-      this.controller.listBulletPoints,
-    );
-    this.router.put(
-      '/bullet-points/:id',
-      authenticate,
-      ValidationMiddleware.validateParams(bulletPointParamsSchema),
-      ValidationMiddleware.validateBody(updateBulletPointBodySchema),
-      this.controller.updateBulletPoint,
-    );
-    this.router.delete(
-      '/bullet-points/:id',
-      authenticate,
-      ValidationMiddleware.validateParams(bulletPointParamsSchema),
-      this.controller.deleteBulletPoint,
     );
 
     // --- Analyze ---

@@ -240,74 +240,9 @@ exports.up = (pgm) => {
     name: "idx_skills_active",
     where: "deleted_at IS NULL",
   });
-
-  // --- bullet_points ---
-  // Polymorphic child of either a work_experience or a project.
-  pgm.createTable("bullet_points", {
-    id: {
-      type: "uuid",
-      primaryKey: true,
-    },
-    user_id: {
-      type: "uuid",
-      notNull: true,
-      references: "users",
-      onDelete: "CASCADE",
-    },
-    parent_type: {
-      type: "varchar(20)",
-      notNull: true,
-      // No FK constraint possible on a polymorphic reference - parent_id
-      // points at either work_experiences.id or projects.id depending on
-      // parent_type. Referential integrity for this relation is enforced
-      // in the repository/use case layer, not the database.
-    },
-    parent_id: {
-      type: "uuid",
-      notNull: true,
-    },
-    text: {
-      type: "text",
-      notNull: true,
-    },
-    tags: {
-      type: "text[]",
-      notNull: true,
-      default: pgm.func("ARRAY[]::text[]"),
-    },
-    metric: {
-      type: "varchar(255)",
-    },
-    created_at: {
-      type: "timestamptz",
-      notNull: true,
-      default: pgm.func("now()"),
-    },
-    updated_at: {
-      type: "timestamptz",
-      notNull: true,
-      default: pgm.func("now()"),
-    },
-    deleted_at: {
-      type: "timestamptz",
-    },
-  });
-
-  pgm.addConstraint("bullet_points", "bullet_points_parent_type_check", {
-    check: "parent_type IN ('work_experience', 'project')",
-  });
-
-  pgm.createIndex("bullet_points", "user_id");
-  pgm.createIndex("bullet_points", ["parent_type", "parent_id"]);
-  pgm.createIndex("bullet_points", "tags", { method: "gin" });
-  pgm.createIndex("bullet_points", "user_id", {
-    name: "idx_bullet_points_active",
-    where: "deleted_at IS NULL",
-  });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable("bullet_points");
   pgm.dropTable("skills");
   pgm.dropTable("certifications");
   pgm.dropTable("education");
