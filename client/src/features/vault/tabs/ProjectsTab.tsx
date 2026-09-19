@@ -4,6 +4,8 @@ import * as vaultApi from "../vaultApi";
 import type { Project } from "../types";
 import type { ProjectInput } from "../vaultApi";
 import { AnalyzeField } from "../components/AnalyzeField";
+import { MonthYearPicker } from "../components/MonthYearPicker";
+import { formatMonthYear } from "../lib/formatMonthYear";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -129,18 +131,16 @@ export function ProjectsTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Start date</Label>
-            <Input
-              type="date"
-              value={form.startDate}
-              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+            <MonthYearPicker
+              value={form.startDate || null}
+              onChange={(startDate) => setForm({ ...form, startDate: startDate ?? "" })}
             />
           </div>
           <div className="space-y-1.5">
             <Label>End date</Label>
-            <Input
-              type="date"
-              value={form.endDate}
-              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+            <MonthYearPicker
+              value={form.endDate || null}
+              onChange={(endDate) => setForm({ ...form, endDate: endDate ?? "" })}
             />
           </div>
         </div>
@@ -188,7 +188,7 @@ export function ProjectsTab() {
                       )}
                       {(item.startDate || item.endDate) && (
                         <p className="text-sm text-muted-foreground mt-0.5">
-                          {item.startDate ?? "?"} – {item.endDate ?? "Present"}
+                          {formatMonthYear(item.startDate) ?? "?"} – {formatMonthYear(item.endDate) ?? "Present"}
                         </p>
                       )}
                     </div>

@@ -4,6 +4,8 @@ import * as vaultApi from "../vaultApi";
 import type { WorkExperience } from "../types";
 import type { WorkExperienceInput } from "../vaultApi";
 import { AnalyzeField } from "../components/AnalyzeField";
+import { MonthYearPicker } from "../components/MonthYearPicker";
+import { formatMonthYear } from "../lib/formatMonthYear";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -148,19 +150,17 @@ export function WorkExperienceTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Start date *</Label>
-            <Input
-              type="date"
-              value={form.startDate}
-              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+            <MonthYearPicker
+              value={form.startDate || null}
+              onChange={(startDate) => setForm({ ...form, startDate: startDate ?? "" })}
             />
           </div>
           <div className="space-y-1.5">
             <Label>End date</Label>
-            <Input
-              type="date"
-              value={form.endDate}
+            <MonthYearPicker
+              value={form.endDate || null}
               disabled={form.isCurrent}
-              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+              onChange={(endDate) => setForm({ ...form, endDate: endDate ?? "" })}
             />
             <label className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
               <input
@@ -215,7 +215,7 @@ export function WorkExperienceTab() {
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {item.location ? `${item.location} · ` : ""}
-                        {item.startDate} – {item.endDate ?? "Present"}
+                        {formatMonthYear(item.startDate) ?? "?"} – {formatMonthYear(item.endDate) ?? "Present"}
                       </p>
                       {item.description && (
                         <p className="text-sm text-muted-foreground mt-1">{item.description}</p>

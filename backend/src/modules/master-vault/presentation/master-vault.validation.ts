@@ -6,10 +6,10 @@ export const createWorkExperienceBodySchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
   location: z.string().max(255).nullish(),
   description: z.string().nullish(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be in YYYY-MM-DD format'),
+  startDate: z.string().regex(/^\d{4}-\d{2}$/, 'startDate must be in YYYY-MM format'),
   endDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}$/, 'endDate must be in YYYY-MM format')
     .nullish(),
 });
 
@@ -26,11 +26,11 @@ export const createProjectBodySchema = z.object({
   url: z.string().url('url must be a valid URL').nullish(),
   startDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}$/, 'startDate must be in YYYY-MM format')
     .nullish(),
   endDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}$/, 'endDate must be in YYYY-MM format')
     .nullish(),
 });
 
@@ -47,11 +47,11 @@ export const createEducationBodySchema = z.object({
   fieldOfStudy: z.string().max(255).nullish(),
   startDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'startDate must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}$/, 'startDate must be in YYYY-MM format')
     .nullish(),
   endDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}$/, 'endDate must be in YYYY-MM format')
     .nullish(),
 });
 
