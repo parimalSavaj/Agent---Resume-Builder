@@ -7,6 +7,7 @@ import { SkillsTab } from "./tabs/SkillsTab";
 import { ThemeToggle } from "@/lib/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Logo } from "@/components/Logo";
 
 const TABS = [
   { id: "work-experience", label: "Work Experience" },
@@ -21,11 +22,19 @@ export function VaultPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b bg-card">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold">Master Vault</h1>
+          <div className="flex items-center gap-6">
+            <Logo />
+            <span className="hidden sm:inline-block h-6 w-px bg-border" />
+            <h1 className="hidden text-sm font-medium text-muted-foreground sm:inline">
+              Master Vault
+            </h1>
+          </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Signed in as {user?.username}</span>
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              Signed in as <span className="font-medium text-foreground">{user?.username}</span>
+            </span>
             <Button variant="link" onClick={() => void logout()} className="h-auto p-0">
               Log out
             </Button>
@@ -34,7 +43,7 @@ export function VaultPage() {
         </div>
       </header>
 
-      <Tabs defaultValue="work-experience" className="max-w-5xl mx-auto px-4 py-8">
+      <Tabs defaultValue="work-experience" className="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
         <TabsList className="flex w-full flex-wrap justify-start h-auto">
           {TABS.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id}>

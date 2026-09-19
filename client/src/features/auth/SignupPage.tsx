@@ -6,9 +6,9 @@ import { isAxiosError } from "axios";
 import { useAuth } from "./AuthContext";
 import { signupFormSchema } from "./schemas";
 import type { SignupFormValues } from "./schemas";
-import { ThemeToggle } from "@/lib/ThemeToggle";
+import { AuthShell } from "./AuthShell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -38,66 +38,60 @@ export function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="fixed top-4 right-4">
-        <ThemeToggle />
-      </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Create account</CardTitle>
-          <CardDescription>Username and password only, no third-party login.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <div className="space-y-1.5">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" autoComplete="username" {...register("username")} />
-              {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
-              )}
-            </div>
+    <AuthShell
+      title="Create your vault"
+      subtitle="Username and password only, no third-party login required."
+    >
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <div className="space-y-1.5">
+            <Label htmlFor="username">Username</Label>
+            <Input id="username" type="text" autoComplete="username" {...register("username")} />
+            {errors.username && (
+              <p className="text-sm text-destructive">{errors.username.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              {...register("password")}
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                {...register("confirmPassword")}
-              />
-              {errors.confirmPassword && (
-                <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
-              )}
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              {...register("confirmPassword")}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+            )}
+          </div>
 
-            {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Creating account..." : "Create account"}
-            </Button>
-          </form>
+          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
+            {isSubmitting ? "Creating account..." : "Create account"}
+          </Button>
+        </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
-              Log in
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-primary hover:underline">
+            Log in
+          </Link>
+        </p>
+      </CardContent>
+    </AuthShell>
   );
 }

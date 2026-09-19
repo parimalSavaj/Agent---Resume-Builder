@@ -1,32 +1,45 @@
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/inter/latin-700.css";
+@import "@fontsource/space-grotesk/latin-500.css";
+@import "@fontsource/space-grotesk/latin-600.css";
+@import "@fontsource/space-grotesk/latin-700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 240 25% 98%;
+    --foreground: 250 35% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 250 35% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 250 35% 10%;
 
-    --primary: 243 75% 59%;
-    --primary-foreground: 210 40% 98%;
+    /* Brand violet, matches the favicon mark (#7e14ff / #863bff) */
+    --primary: 265 95% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Cyan accent, matches the favicon highlight (#47bfff) */
+    --accent-2: 199 92% 56%;
+    --accent-2-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary: 250 30% 95%;
+    --secondary-foreground: 250 35% 15%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --muted: 250 20% 95%;
+    --muted-foreground: 250 15% 45%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --accent: 265 90% 96%;
+    --accent-foreground: 265 60% 30%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
     --success: 152 60% 36%;
     --success-foreground: 0 0% 100%;
@@ -34,47 +47,55 @@
     --warning: 38 92% 50%;
     --warning-foreground: 26 83% 14%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 243 75% 59%;
+    --border: 250 20% 90%;
+    --input: 250 20% 88%;
+    --ring: 265 95% 58%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Elevation: layered, tinted shadows instead of flat default box-shadow */
+    --shadow-color: 250 60% 25%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 252 45% 6%;
+    --foreground: 250 30% 96%;
 
-    --card: 222.2 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --card: 252 38% 9%;
+    --card-foreground: 250 30% 96%;
 
-    --popover: 222.2 47% 11%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 252 40% 8%;
+    --popover-foreground: 250 30% 96%;
 
-    --primary: 243 75% 68%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 265 95% 68%;
+    --primary-foreground: 252 45% 6%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --accent-2: 199 92% 62%;
+    --accent-2-foreground: 252 45% 6%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --secondary: 252 30% 14%;
+    --secondary-foreground: 250 30% 96%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 252 28% 14%;
+    --muted-foreground: 250 15% 65%;
 
-    --destructive: 0 62.8% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --accent: 265 55% 18%;
+    --accent-foreground: 265 80% 88%;
 
-    --success: 152 55% 45%;
-    --success-foreground: 0 0% 100%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 55%;
-    --warning-foreground: 26 83% 14%;
+    --success: 152 55% 48%;
+    --success-foreground: 152 60% 8%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 243 75% 68%;
+    --warning: 38 92% 58%;
+    --warning-foreground: 26 83% 10%;
+
+    --border: 252 25% 18%;
+    --input: 252 25% 20%;
+    --ring: 265 95% 68%;
+
+    --shadow-color: 260 80% 3%;
   }
 }
 
@@ -90,6 +111,55 @@
   }
   body {
     margin: 0;
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, hsl(var(--accent-2) / 0.08), transparent);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  /* Gradient text for hero/brand headlines */
+  .text-gradient-brand {
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-2)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Soft outer glow used sparingly on primary CTAs / focal cards */
+  .glow-primary {
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45);
+  }
+
+  /* Subtle 1px gradient border via padding trick, for "premium" card accents */
+  .border-gradient-brand {
+    position: relative;
+    border-color: transparent;
+  }
+  .border-gradient-brand::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.6), hsl(var(--accent-2) / 0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Fine grain noise-free grid backdrop for hero sections */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }

@@ -6,9 +6,9 @@ import { isAxiosError } from "axios";
 import { useAuth } from "./AuthContext";
 import { loginFormSchema } from "./schemas";
 import type { LoginFormValues } from "./schemas";
-import { ThemeToggle } from "@/lib/ThemeToggle";
+import { AuthShell } from "./AuthShell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -40,53 +40,47 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="fixed top-4 right-4">
-        <ThemeToggle />
-      </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Log in</CardTitle>
-          <CardDescription>Access your Master Vault and saved resumes.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <div className="space-y-1.5">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" autoComplete="username" {...register("username")} />
-              {errors.username && (
-                <p className="text-sm text-destructive">{errors.username.message}</p>
-              )}
-            </div>
+    <AuthShell
+      title="Welcome back"
+      subtitle="Log in to access your vault and pick up where you left off."
+    >
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <div className="space-y-1.5">
+            <Label htmlFor="username">Username</Label>
+            <Input id="username" type="text" autoComplete="username" {...register("username")} />
+            {errors.username && (
+              <p className="text-sm text-destructive">{errors.username.message}</p>
+            )}
+          </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              {...register("password")}
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">{errors.password.message}</p>
+            )}
+          </div>
 
-            {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Logging in..." : "Log in"}
-            </Button>
-          </form>
+          <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
+            {isSubmitting ? "Logging in..." : "Log in"}
+          </Button>
+        </form>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link to="/signup" className="font-medium text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link to="/signup" className="font-medium text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
+      </CardContent>
+    </AuthShell>
   );
 }
