@@ -3,6 +3,7 @@ export interface WorkExperience {
   company: string;
   title: string;
   location: string | null;
+  description: string | null;
   startDate: string;
   endDate: string | null;
 }

@@ -4,6 +4,7 @@ export type WorkExperienceRow = {
   company: string;
   title: string;
   location: string | null;
+  description: string | null;
   start_date: string;
   end_date: string | null;
   created_at: Date;

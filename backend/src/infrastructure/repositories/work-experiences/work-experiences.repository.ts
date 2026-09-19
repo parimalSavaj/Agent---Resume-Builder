@@ -13,14 +13,15 @@ export class WorkExperiencesRepository implements IWorkExperiencesRepository {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     startDate: string;
     endDate: string | null;
     createdAt: Date;
     updatedAt: Date;
   }): Promise<void> {
     const sql = `
-      INSERT INTO ${this.TABLE} (id, user_id, company, title, location, start_date, end_date, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO ${this.TABLE} (id, user_id, company, title, location, description, start_date, end_date, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
     await this.db.insert(sql, [
       data.id,
@@ -28,6 +29,7 @@ export class WorkExperiencesRepository implements IWorkExperiencesRepository {
       data.company,
       data.title,
       data.location,
+      data.description,
       data.startDate,
       data.endDate,
       data.createdAt,
@@ -55,6 +57,7 @@ export class WorkExperiencesRepository implements IWorkExperiencesRepository {
       company: string;
       title: string;
       location: string | null;
+      description: string | null;
       startDate: string;
       endDate: string | null;
       updatedAt: Date;
@@ -62,7 +65,7 @@ export class WorkExperiencesRepository implements IWorkExperiencesRepository {
   ): Promise<void> {
     const sql = `
       UPDATE ${this.TABLE}
-      SET company = $2, title = $3, location = $4, start_date = $5, end_date = $6, updated_at = $7
+      SET company = $2, title = $3, location = $4, description = $5, start_date = $6, end_date = $7, updated_at = $8
       WHERE id = $1 AND deleted_at IS NULL
     `;
     await this.db.update(sql, [
@@ -70,6 +73,7 @@ export class WorkExperiencesRepository implements IWorkExperiencesRepository {
       data.company,
       data.title,
       data.location,
+      data.description,
       data.startDate,
       data.endDate,
       data.updatedAt,

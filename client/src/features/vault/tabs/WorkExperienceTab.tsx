@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as vaultApi from "../vaultApi";
 import type { WorkExperience } from "../types";
 import type { WorkExperienceInput } from "../vaultApi";
+import { AnalyzeField } from "../components/AnalyzeField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,18 +13,28 @@ interface FormState {
   company: string;
   title: string;
   location: string;
+  description: string;
   startDate: string;
   endDate: string;
   isCurrent: boolean;
 }
 
-const emptyForm: FormState = { company: "", title: "", location: "", startDate: "", endDate: "", isCurrent: false };
+const emptyForm: FormState = {
+  company: "",
+  title: "",
+  location: "",
+  description: "",
+  startDate: "",
+  endDate: "",
+  isCurrent: false,
+};
 
 function toInput(form: FormState): WorkExperienceInput {
   return {
     company: form.company,
     title: form.title,
     location: form.location.trim() ? form.location.trim() : null,
+    description: form.description.trim() ? form.description.trim() : null,
     startDate: form.startDate,
     endDate: form.isCurrent ? null : form.endDate || null,
   };
@@ -80,6 +91,7 @@ export function WorkExperienceTab() {
       company: item.company,
       title: item.title,
       location: item.location ?? "",
+      description: item.description ?? "",
       startDate: item.startDate,
       endDate: item.endDate ?? "",
       isCurrent: item.endDate === null,
@@ -126,6 +138,11 @@ export function WorkExperienceTab() {
           <Label>Location</Label>
           <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
         </div>
+        <AnalyzeField
+          label="Description"
+          value={form.description}
+          onChange={(description) => setForm({ ...form, description })}
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Start date *</Label>
@@ -198,6 +215,9 @@ export function WorkExperienceTab() {
                         {item.location ? `${item.location} · ` : ""}
                         {item.startDate} – {item.endDate ?? "Present"}
                       </p>
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                      )}
                     </div>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>

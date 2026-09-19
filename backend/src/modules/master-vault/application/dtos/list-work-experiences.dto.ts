@@ -25,6 +25,7 @@ export class ListWorkExperiencesResponseDto {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     start_date: string;
     end_date: string | null;
   }[]): ListWorkExperiencesResponseDto {

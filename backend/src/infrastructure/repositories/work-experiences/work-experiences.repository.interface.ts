@@ -7,6 +7,7 @@ export interface IWorkExperiencesRepository {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     startDate: string;
     endDate: string | null;
     createdAt: Date;
@@ -20,6 +21,7 @@ export interface IWorkExperiencesRepository {
       company: string;
       title: string;
       location: string | null;
+      description: string | null;
       startDate: string;
       endDate: string | null;
       updatedAt: Date;

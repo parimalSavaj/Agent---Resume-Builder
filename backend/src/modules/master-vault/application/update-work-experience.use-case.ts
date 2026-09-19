@@ -25,6 +25,7 @@ export class UpdateWorkExperienceUseCase {
         company: dto.company,
         title: dto.title,
         location: dto.location,
+        description: dto.description,
         startDate: dto.startDate,
         endDate: dto.endDate,
         updatedAt,
@@ -44,6 +45,7 @@ export class UpdateWorkExperienceUseCase {
       company: dto.company,
       title: dto.title,
       location: dto.location,
+      description: dto.description,
       start_date: dto.startDate,
       end_date: dto.endDate,
     });

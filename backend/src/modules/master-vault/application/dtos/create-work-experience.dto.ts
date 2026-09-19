@@ -5,6 +5,7 @@ export class CreateWorkExperienceRequestDto {
   readonly company: string;
   readonly title: string;
   readonly location: string | null;
+  readonly description: string | null;
   readonly startDate: string;
   readonly endDate: string | null;
 
@@ -13,6 +14,7 @@ export class CreateWorkExperienceRequestDto {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     startDate: string;
     endDate: string | null;
   }) {
@@ -20,6 +22,7 @@ export class CreateWorkExperienceRequestDto {
     this.company = props.company;
     this.title = props.title;
     this.location = props.location;
+    this.description = props.description;
     this.startDate = props.startDate;
     this.endDate = props.endDate;
   }
@@ -30,6 +33,7 @@ export class CreateWorkExperienceRequestDto {
       company: req.body.company,
       title: req.body.title,
       location: req.body.location ?? null,
+      description: req.body.description ?? null,
       startDate: req.body.startDate,
       endDate: req.body.endDate ?? null,
     });
@@ -41,6 +45,7 @@ export class WorkExperienceResponseDto {
   readonly company: string;
   readonly title: string;
   readonly location: string | null;
+  readonly description: string | null;
   readonly startDate: string;
   readonly endDate: string | null;
 
@@ -49,6 +54,7 @@ export class WorkExperienceResponseDto {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     startDate: string;
     endDate: string | null;
   }) {
@@ -56,6 +62,7 @@ export class WorkExperienceResponseDto {
     this.company = props.company;
     this.title = props.title;
     this.location = props.location;
+    this.description = props.description;
     this.startDate = props.startDate;
     this.endDate = props.endDate;
   }
@@ -65,6 +72,7 @@ export class WorkExperienceResponseDto {
     company: string;
     title: string;
     location: string | null;
+    description: string | null;
     start_date: string;
     end_date: string | null;
   }): WorkExperienceResponseDto {
@@ -73,6 +81,7 @@ export class WorkExperienceResponseDto {
       company: row.company,
       title: row.title,
       location: row.location,
+      description: row.description,
       startDate: row.start_date,
       endDate: row.end_date,
     });
